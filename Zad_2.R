@@ -22,11 +22,40 @@ names(eddy) = names(eddy) %>%
 glimpse(eddy)
 
 eddy_num=filter(eddy, daytime==FALSE)[,sapply(eddy, is.numeric)]
-eddy_non_num=eddy_filter[,!sapply(eddy, is.numeric)]
+eddy_non_num=eddy[,!sapply(eddy, is.numeric)]
 
 cor_td=cor(drop_na(eddy_num)) %>% as.data.frame %>% select(co2_flux)
 cor_td=cbind(cor_td,adjusted=sqrt(cor_td$co2_flux^2))
 vars=row.names(cor_td)[cor_td$co2_flux^2>.1] %>% na.exclude()
 correlation_formula=as.formula(paste("co2_flux~",paste(vars,collapse="+"),sep=" "))
 
-model1=lm(correlation_formula,data=as.data.frame(eddy_num))
+model1=lm(correlation_formula,data=eddy_num)
+
+names(model1)
+
+summary(model1)
+
+anova(model1)
+
+vars_cut=c("rand_err_co2_flux","co2_molar_density",
+           "T_star_","un_co2_flux","co2","co2_1")
+correlation_formula_cut=as.formula(paste("co2_flux~",paste(vars_cut,collapse="+"),sep=" "))
+
+modelc=lm(correlation_formula_cut,data=eddy_num)
+anova(modelc)
+summary(modelc)
+
+cor_lrm=cor(drop_na(eddy_num) %>% as.data.frame %>% select(vars_cut))
+cor_lrm=sqrt(cor_lrm^2)
+
+
+vars2=c("T_star_","un_co2_flux")
+correlation_formula2=as.formula(paste("co2_flux~",paste(vars2,collapse="+"),sep=" "))
+
+model2=lm(correlation_formula2,data=eddy_num)
+
+names(model2)
+
+summary(model2)
+
+anova(model2)
